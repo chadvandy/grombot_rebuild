@@ -1,75 +1,38 @@
-cmake_minimum_required (VERSION 3.6)
+# minimum CMake version required
+cmake_minimum_required(VERSION 3.15)
+# Project name, version and description
+project(Himbot VERSION 0.0.1 DESCRIPTION "It's a good thing he's pretty")
 
+# Add CMake files from the /cmake folder.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(BOT_NAME "templatebot")
+ 
+# Create an executable
+add_executable(${PROJECT_NAME}
+    src/main.cpp
+    # your others files...
+)
 
-project(${BOT_NAME})
-aux_source_directory("src" coresrc)
-add_executable(${BOT_NAME} ${coresrc})
+add_subdirectory(libs/dpp)
+# add_subdirectory(libs/spdlog)
 
-string(ASCII 27 Esc)
-
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-set_target_properties(${BOT_NAME} PROPERTIES
-    CXX_STANDARD 17
+# find_package(dpp REQUIRED)
+# find_package(spdlog REQUIRED)
+ 
+# Linking libraries
+target_link_libraries(${PROJECT_NAME}
+    dpp
+    #spdlog # if you need a logger. Don't forget to clone sources
+           # in the `libs/` directory
+)
+ 
+# Specify includes
+target_include_directories(${PROJECT_NAME} PRIVATE
+    libs/dpp/include
+    #libs/spdlog/include # Like before, if you need spdlog
+)
+ 
+# Set C++ version
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
 )
-
-set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-find_package(Threads REQUIRED)
-find_package(DPP)
-if(APPLE)
-	if(CMAKE_APPLE_SILICON_PROCESSOR)
-		set(OPENSSL_ROOT_DIR "/opt/homebrew/opt/openssl")
-	else()
-		set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl")
-	endif()
-	find_package(OpenSSL REQUIRED)
-else()
-	find_package(OpenSSL REQUIRED)
-endif()
-
-if(NOT CMAKE_SYSTEM_NAME STREQUAL Windows)
-	set(DL_LIBRARY dl)
-endif()
-
-target_include_directories(${BOT_NAME} PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${OPENSSL_INCLUDE_DIR}
-)
-
-target_link_libraries(${BOT_NAME}
-    ${DL_LIBRARY}
-    ${CMAKE_THREAD_LIBS_INIT}
-    ${OPENSSL_CRYPTO_LIBRARY} 
-    ${OPENSSL_SSL_LIBRARY}
-)
-
-if (DPP_FOUND)
-    target_link_libraries(${BOT_NAME} ${DPP_LIBRARIES})
-    target_include_directories(${BOT_NAME} PUBLIC ${DPP_INCLUDE_DIR})
-else()
-    message(WARNING "Could not find DPP install. Building from source instead.")
-    option(DPP_BUILD_TEST "" OFF)
-    include(FetchContent)
-
-    FetchContent_Declare(
-            libdpp
-            GIT_REPOSITORY https://github.com/brainboxdotcc/DPP.git
-            GIT_TAG master)
-
-    FetchContent_GetProperties(libdpp)
-    if(NOT libdpp_POPULATED)
-        FetchContent_Populate(libdpp)
-        target_include_directories(${BOT_NAME} PUBLIC
-            ${libdpp_SOURCE_DIR}/include
-        )
-        add_subdirectory(
-            ${libdpp_SOURCE_DIR}
-            ${libdpp_BINARY_DIR}
-            EXCLUDE_FROM_ALL)
-    endif()
-
-    target_link_libraries(${BOT_NAME} dpp)
-endif()

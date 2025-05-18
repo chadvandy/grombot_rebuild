@@ -1,4 +1,5 @@
-#include <templatebot/templatebot.h>
+#include <dpp/dpp.h>
+#include <dpp/nlohmann/json.hpp>
 #include <sstream>
 
 /* When you invite the bot, be sure to invite it with the
@@ -8,14 +9,23 @@
 
 using json = nlohmann::json;
 
+// TODO Admin commands
+// TODO Macro commands
+// TODO Dice commands
+// TODO Fates commands
+// TODO Reminder commands
+// TODO 
+
 int main(int argc, char const *argv[])
 {
     json configdocument;
     std::ifstream configfile("../config.json");
     configfile >> configdocument;
 
+    const std::string token = configdocument["token"];
+
     /* Setup the bot */
-    dpp::cluster bot(configdocument["token"]);
+    dpp::cluster bot{ token };
 
     /* Output simple log messages to stdout */
     bot.on_log(dpp::utility::cout_logger());
