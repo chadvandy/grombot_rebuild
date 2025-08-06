@@ -9,12 +9,18 @@
 
 using json = nlohmann::json;
 
+// TODO Reminder commands
+// TODO Dice commands
 // TODO Admin commands
 // TODO Macro commands
-// TODO Dice commands
 // TODO Fates commands
-// TODO Reminder commands
-// TODO 
+
+namespace Himbot {
+    // Roll command callback.
+    bool onRollCommand(const dpp::slashcommand_t& event) {
+
+    }
+}
 
 int main(int argc, char const *argv[])
 {
